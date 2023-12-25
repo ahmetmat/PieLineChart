@@ -1,0 +1,69 @@
+﻿@page "/charts"
+@inject HttpClient Http
+
+<h3>Grafikler</h3>
+
+@if (pieChartImage != null)
+{
+    <h4>Pie Chart</h4>
+    <img src="data:image/png;base64,@pieChartImage" />
+}
+
+@if (lineChartImage != null)
+{
+    <h4>Line Chart</h4>
+    <img src="data:image/png;base64,@lineChartImage" />
+}
+
+<button class="btn btn-primary" @onclick="LoadPieChart">Pie Chart'ı Yükle</button>
+<button class="btn btn-primary" @onclick="LoadLineChart">Line Chart'ı Yükle</button>
+
+@code
+{
+        private string pieChartImage;
+        private string lineChartImage;
+        private string imageData;
+
+
+        private async Task LoadPieChart()
+        {
+            var request = new
+            {
+                sizes = new[] { 30, 40, 20, 10 },
+                labels = new[] { "Kategori 1", "Kategori 2", "Kategori 3", "Kategori 4" },
+                colors = new[] { "#ff9999", "#66b3ff", "#99ff99" }
+            };
+
+            var response = await Http.PostAsJsonAsync("http://127.0.0.1:5000/piechart", request);
+            var responseData = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            pieChartImage = responseData["image"];
+        }
+
+        private async Task LoadLineChart()
+        {
+            var request = new
+            {
+                x_values = new[] { 1, 2, 3, 4, 5 },
+                y_values = new[] { 10, 20, 15, 25, 30 }
+            };
+
+            var response = await Http.PostAsJsonAsync("http://127.0.0.1:5000/linechart", request);
+            var responseData = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            lineChartImage = responseData["image"];
+        }
+
+        private async Task LoadCustomPieChart()
+        {
+            var request = new
+            {
+                sizes = new[] { 64.23, 32.07, 3.70 },
+                labels = new[] { "IMX", "MINA", "SAND" },
+                colors = new[] { "#ff9999", "#66b3ff", "#99ff99" }  // Renklerinizi buraya ekleyin
+            };
+
+            var response = await Http.PostAsJsonAsync("http://127.0.0.1:5000/custompiechart", request);
+            var responseData = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            imageData = responseData["image"];
+        }
+
+    }
